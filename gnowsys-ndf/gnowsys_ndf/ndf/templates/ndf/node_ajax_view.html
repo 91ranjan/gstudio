@@ -4,7 +4,7 @@
 
 
 <!--
-<script src="/static/ndf/bower_components/foundation/js/foundation.min.js"></script> 
+<script src="/static/ndf/bower_components/foundation/js/foundation.min.js"></script>
 
 <script type="text/javascript">
   $(document).foundation();
@@ -14,7 +14,7 @@
 {% block head %}
 
   <meta http-equiv="Content-Type" content="text/html; charset=utf-8">
-  
+
   <!-- Scripts and stylesheets for SideComments -->
   <!-- <script type="text/javascript" src="/static/ndf/bower_components/side-comments/release/side-comments.js"></script> -->
   <!-- <link rel="stylesheet" type"text/css" href="/static/ndf/bower_components/side-comments/release/side-comments.css"> -->
@@ -38,18 +38,18 @@
 
   /*annotations*/
   /*.movingDiv{
-    display:none; 
+    display:none;
     position:absolute;
     color: green;
-    font-size: 10px; 
-    z-index:40; 
-    background-color:white; 
-    box-shadow: 0px 0px 5px #888888; 
+    font-size: 10px;
+    z-index:40;
+    background-color:white;
+    box-shadow: 0px 0px 5px #888888;
   }
   .annotatedElement{
   background-color : rgba(255,0,0,0.2);
   font-weight:bold;
-  } 
+  }
   .movingDivIcon{
     font-size: 35px;
     color: green;
@@ -57,7 +57,7 @@
     padding-right: 5px;
   }*/
   /* ---END of annotations*/
-    
+
   .divider-line { font-size: xx-large; color:lightgray; }
   .line-height-2 { line-height:2; }
   .line-height-2pt5 { line-height:2.5; }
@@ -103,7 +103,7 @@
     /*height:100px;*/
     width: 100% !important;
   }
-  
+
   .row.orgitdownContainer{
     /*height:100px;*/
     background-color: #EEEEEE;
@@ -112,7 +112,7 @@
 
   .row.orgitdownContainer > ul
   {
-    margin-bottom: 0 !important; 
+    margin-bottom: 0 !important;
   }
   /*.orgitdownEditor{
     height:60px;
@@ -132,8 +132,8 @@
         -webkit-transform: rotate( 29deg ) skew( -35deg );
     width:  20px;
     box-shadow: -2px 2px 2px 0 rgba( 178, 178, 178, .4 );
-    left: -9px; 
-  
+    left: -9px;
+
   }
 
   #html-res-iframe{
@@ -142,9 +142,9 @@
 
   .orbit-container .orbit-prev,
   .orbit-container .orbit-next {
-    background-color: tomato;    
+    background-color: tomato;
   }
-  
+
 /*Style for dropdown*/
 
 ul#navigation {
@@ -161,7 +161,7 @@ ul#navigation li {
 ul#navigation li a {
   padding:7px 7px;
   text-shadow:1px 1px 0px #fff;
-  display:inline-block;  
+  display:inline-block;
 }
 
 ul#navigation li a:hover {
@@ -183,7 +183,7 @@ ul#navigation li:hover > ul
 ul#navigation ul, ul#navigation ul li ul {
   list-style: none;
   margin: 0;
-  padding: 0;    
+  padding: 0;
   visibility:hidden;
   position: absolute;
   z-index: 99999;
@@ -192,10 +192,10 @@ ul#navigation ul, ul#navigation ul li ul {
   background:#f8f8f8;
   box-shadow:1px 1px 3px #ccc;
   opacity:0;
-  -webkit-transition:opacity 0.2s linear, visibility 0.2s linear; 
-  -moz-transition:opacity 0.2s linear, visibility 0.2s linear; 
-  -o-transition:opacity 0.2s linear, visibility 0.2s linear; 
-  transition:opacity 0.2s linear, visibility 0.2s linear;   
+  -webkit-transition:opacity 0.2s linear, visibility 0.2s linear;
+  -moz-transition:opacity 0.2s linear, visibility 0.2s linear;
+  -o-transition:opacity 0.2s linear, visibility 0.2s linear;
+  transition:opacity 0.2s linear, visibility 0.2s linear;
 }
 
 ul#navigation ul {
@@ -206,9 +206,9 @@ ul#navigation ul {
 ul#navigation ul li ul {
     top: 0;
     left: 181px;
-    height:150px; 
+    height:150px;
     width: 200px;
-    overflow:hidden; 
+    overflow:hidden;
     overflow-y:auto;
 }
 
@@ -280,7 +280,7 @@ ul#navigation li a.last {
 <!-- Icon to add annotations -->
 <!-- <div id="moving_div" class = "movingDiv" >
       <i title="Annotate" class ="fi-comment-quotes movingDivIcon" onclick = 'switchMode();'></i>
-      
+
 </div> -->
 <!-- End menu -->
 
@@ -296,7 +296,7 @@ ul#navigation li a.last {
 </div> -->
 <!-- end dialog -->
 
-{% get_schema node as schema %} 
+{% get_schema node as schema %}
 
 {% check_user_join request groupid as user_is_joined %}
 
@@ -304,7 +304,7 @@ ul#navigation li a.last {
 {% include "ndf/action_panel.html" %}
 
 
-<!-- 
+<!--
 <div id="file-resource-overlay" class="reveal-modal xlarge" data-reveal aria-labelledby="modalTitle" aria-hidden="true" role="dialog">
   <div id="resource-details">
     kjhkj
@@ -384,9 +384,9 @@ if($('.breadcrumbs').length == 0)
 }
 
 {% comment %}
-  
+
   // fileResources = document.querySelectorAll('.file-resource');
-  // for (var i = fileResources.length - 1; i >= 0; i--) 
+  // for (var i = fileResources.length - 1; i >= 0; i--)
   // {
   //   fileResources[i].onclick = function (){
 
@@ -425,7 +425,7 @@ if($('.breadcrumbs').length == 0)
   //           // }, 10);
 
   //         }
-          
+
   //     })
   //   }
   // }
@@ -487,7 +487,7 @@ if($('.breadcrumbs').length == 0)
   //     var url='/{{groupid}}/group/switch_group/'+'{{node}}';
   //     $.getJSON( url, function( data ) {
   //       $.each(data ,function(index , drawer_elements){
-        
+
   //        if(index == 0)
   //         {
   //          $.each(drawer_elements.drawer1, function(index, element) {
@@ -508,12 +508,12 @@ if($('.breadcrumbs').length == 0)
   $(".current").click(function() {
 
     var nav_list = "{{nav_list}}";
-    {% get_node_type original_node as node_type %}  
+    {% get_node_type original_node as node_type %}
     var node_type = "{{node_type}}";
     var clicked_node = this.id;
 
     {% if topic %}
-    
+
       location.href = "{% url 'theme_page' group_name_tag theme_id %}?tree=hierarchical&selected="+clicked_node+"";
 
     {% else %}
@@ -535,7 +535,7 @@ if($('.breadcrumbs').length == 0)
              window.history.pushState("", "", "/{{group_name_tag}}/page/{{original_node.pk}}"+"?selected="+clicked_node+"");
             }
             else if(node_type == "File"){
-              window.history.pushState("", "", "/{{group_name_tag}}/file/{{original_node.pk}}"+"?selected="+clicked_node+"");  
+              window.history.pushState("", "", "/{{group_name_tag}}/file/{{original_node.pk}}"+"?selected="+clicked_node+"");
             }
             else if (node_type == "Term"){
               window.history.pushState("", "", "/{{group_name_tag}}/term/{{original_node.pk}}"+"?selected="+clicked_node+"");
@@ -616,10 +616,10 @@ if($('.breadcrumbs').length == 0)
   //     });
   // });
 
-  // on click of concept 
+  // on click of concept
   $(document).on('click','#clickConceptGraph',function(){
-    $('#view-concept-graph #chart-concept').append(svgdata); 
-    $('#view-concept-graph').foundation('reveal', 'open'); 
+    $('#view-concept-graph #chart-concept').append(svgdata);
+    $('#view-concept-graph').foundation('reveal', 'open');
   });
 
   $(document).on('click','.view-info',function(){
@@ -646,20 +646,20 @@ if($('.breadcrumbs').length == 0)
   });
 
   $(document).on('close', '#view-concept-graph[data-reveal]', function () {
-    
+
     $('#view-graph').append(svgdata);
   });
 
-  // iframe for html content  
+  // iframe for html content
   function adjustIframeHt(){
 
     var iframeBodyHt = $("iframe").contents().find("body").height();
     var docHeight = $(window).height();
     docHeight -= docHeight * 0.20;
     $("iframe").height(docHeight + 50);
-    
+
     var changedHt;
-    
+
     setTimeout(function(){
 
       changedHt = $("iframe").contents().find("body").height();
@@ -676,32 +676,32 @@ if($('.breadcrumbs').length == 0)
 
     // making <a> disabled of images in html pages in iframe
     var imgInIframe = $("iframe#html-res-iframe").contents().find("img");
-    
+
     imgInIframe.each(function(){
-      
+
       var tempImgAnchor = $(this).parent("a");
 
       // additional check if parent is <a> and if it contains url pattern: "/gstudio/resources/images/show/"
       if(tempImgAnchor.is("a") && $(tempImgAnchor).attr("href").trim().contains("/gstudio/resources/images/show/"))
       {
         tempImgAnchor.attr("href", "");
-        tempImgAnchor.on("click", function(e){ e.preventDefault(); } ) 
+        tempImgAnchor.on("click", function(e){ e.preventDefault(); } )
       }
-    
+
     })
   });
-  
-  
-  // $(document).on('open', '#view-map-widget[data-reveal]', function () {  
-    
+
+
+  // $(document).on('open', '#view-map-widget[data-reveal]', function () {
+
   //   $.ajax({
   //     url: "{% url 'get_visited_location' groupid %}",
-  //     success: function(data){ 
+  //     success: function(data){
 
   //       data = JSON.parse(data);
 
   //       var lastVisitedLocationVal = data;
-        
+
   //       if(lastVisitedLocationVal){
 
   //         if(lastVisitedLocationVal == "[]"){
@@ -727,9 +727,9 @@ if($('.breadcrumbs').length == 0)
   // });
 
 
-  $(document).on('opened', '#view-map-widget[data-reveal]', function () {  
-      
-    map.invalidateSize();  
+  $(document).on('opened', '#view-map-widget[data-reveal]', function () {
+
+    map.invalidateSize();
 
     // var lastVisitedLocationVal = $('input:hidden[name=last_visited_location]').attr("value");
     // if(lastVisitedLocationVal){
@@ -769,10 +769,10 @@ if($('.breadcrumbs').length == 0)
       // data:,
       success:function (data) {
         $('#view-page').html(data);
-        
+
       }
     })
 
   })
-  
+
 </script>

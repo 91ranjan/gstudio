@@ -80,7 +80,7 @@
             <img src="{% url 'get_gridfs_resource' logo_img_and_grel_hl.0.fs_file_ids.2 %}" alt="" />
           {% endif %}
         {% else %}
-          <img src="/static/ndf/images/metaStudio-profile.svg" alt="Profile picture for this group."  class="img-height">
+          <img src="/static/ndf/images/groups.svg" alt="Profile picture for this group."  class="img-height">
 
         {% endif %}
 
@@ -94,7 +94,7 @@
             <img src="{% url 'get_gridfs_resource' logo_img_and_grel_pp.0.fs_file_ids.0 %}" alt="" />
           {% endif %}
         {% else %}
-          <img src="/static/ndf/images/metaStudio-profile.svg" alt="Profile picture for this group."  class="img-height">
+          <img src="/static/ndf/images/groups.svg" alt="Profile picture for this group."  class="img-height">
         {% endif %}
 
       {% endif %}
@@ -109,7 +109,7 @@
 </div>
 <div class="scard-footer">
   <div class="scard-content" title="{% firstof resource.altnames resource.name %}">
-   <span class="scard-title">{% firstof resource.altnames resource.name %}</span>    
+   <span class="scard-title">{% firstof resource.altnames resource.name %}</span>
     {% comment %}
     <!-- {% get_node_ratings request resource.pk as ratings %} -->
             <!-- <div class="rating-stars center" style="width:{{ratings.avg|multiply:16}}px;"> <!-- 16px = 1 star -->

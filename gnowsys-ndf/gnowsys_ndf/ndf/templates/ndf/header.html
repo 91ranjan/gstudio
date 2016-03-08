@@ -33,7 +33,7 @@
     {# <div class="large-12 small-7 medium-7 columns two-nav-container"> #}
 
       <!-- first menu header  -->
-      <nav class="top-bar" id="first-header" data-topbar role="navigation">
+      <nav class="top-bar" id="first-header" data-topbar role="navigation" data-options="is_hover: false">
 
         <ul class="title-area">
           <li class="name">
@@ -124,7 +124,7 @@
 
         <!-- Current group selector -->
         <li class="has-dropdown group">
-          <a title="{{group_object.name|default:' -- '}}" class="active" href="{% url 'groupchange' group_object.name %}">
+          <a title="{{group_object.name|default:' -- '}}" class="active app-primary-dropdown" href="{% url 'groupchange' group_object.name %}">
             {{group_object.name|truncatechars:20}}
           </a>
           <!-- If logged in show user groups -->
@@ -250,7 +250,7 @@
 
         <ul class="right">
           <li class="has-dropdown">
-            <a>{% trans "Language" %} &nbsp; | &nbsp; {{request.LANGUAGE_CODE}}</a>
+            <a><span style="font-weight: 400; color: #B9B9B9;">{% trans "Language" %}</span>&nbsp;&nbsp; {{request.LANGUAGE_CODE}}</a>
             <ul class="dropdown">
 
               {% for lang in LANGUAGES %}
@@ -384,9 +384,9 @@
 
                 <ul class="left" id="group-apps">
                   <!-- add GSTUDIO_SITE_NAME = "NROER" in the local_settings.py file, to check locally -->
-                  <li class="" onclick="history.back();">
+                  <!--li class="" onclick="history.back();">
                     <a href="javascript:window.history.back();"><i class="fa fa-angle-left back-btn"></i> {% trans "BACK" %}</a>
-                  </li>
+                  </li-->
                   {% if site.SITE_NAME == "NROER" %}
                     {% if group_name_tag == "home" or "CourseEventGroup" in group_object.member_of_names_list or "ProgramEventGroup" in list_of_sg_member_of %}
                     <!-- NROER level-two menu -->

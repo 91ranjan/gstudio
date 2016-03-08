@@ -90,7 +90,8 @@ $row-width: inherit;    //Expand to full browser width instead of 960px
 // We use these to control various global styles
  //
 // $body-font-color: #222;
- $body-font-family: "Source Sans Pro","Open Sans", "Ubuntu", "FreeSans","Helvetica Neue", Helvetica, Arial, sans-serif;
+//$body-font-family: "Source Sans Pro","Open Sans", "Ubuntu", "FreeSans","Helvetica Neue", Helvetica, Arial, sans-serif;
+ $body-font-family: 'Ubuntu', sans-serif;
 // $body-font-weight: normal;
 // $body-font-style: normal;
 
@@ -168,7 +169,7 @@ $row-width: inherit;    //Expand to full browser width instead of 960px
 // $header-font-family: $body-font-family;
 // $header-font-weight: 300;
 // $header-font-style: normal;
- 
+
 // $header-line-height: 1.4;
 // $header-top-margin: .2rem;
 // $header-bottom-margin: .5rem;
@@ -341,7 +342,7 @@ $icon-bar-icon-color: white ;
 //$icon-bar-image-height: 1.875rem ;
 $icon-bar-active-color: red ;
 $icon-bar-item-padding: 0.5rem;
-    
+
 // Breadcrumbs
 
 // $include-html-nav-classes: $include-html-classes;

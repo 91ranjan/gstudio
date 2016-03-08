@@ -13,7 +13,7 @@
 		/*float: left;*/
 		/*margin-left: 1rem;*/
 		width: 40%;
-		font-size: 0.70em !important;
+		font-size: 0.70em;
 		margin-top: 0.1rem !important;
 		text-align: center;
 	}
@@ -21,7 +21,7 @@
 		margin-left: 0.6rem !important;
 		margin-top: 0.3rem !important;
 	}
-	/*	
+	/*
 	.right-btn{
 		float: right;
 		margin-right: 1rem;
@@ -41,7 +41,7 @@
 	}
 	.mod-btn{
 		width: 80% !important;
-		font-size: 0.75rem !important;
+		font-size: 0.75rem ;
 	}
 	.btn-row{
 		/*margin-left: 1rem !important;*/
@@ -86,12 +86,12 @@
     <a class="close-reveal-modal">&#215;</a>
   </div>
 
-<section class="medium-3 columns"> 
+<section class="medium-3 columns">
 
 	<ul class="side-nav">
 
 		<!-- PANEL 1
-		 Resource related Actions such as 
+		 Resource related Actions such as
 			Edit, Publish, Delete, History,
 			Translate, Cross Publish,
 			Tags
@@ -145,11 +145,11 @@
 			{% if node.status != "MODERATION" %}
 			<!-- Delete and History NA -->
 			<!-- Cross publish and Delete -->
-				{% if user.is_authenticated %} 
+				{% if user.is_authenticated %}
 				<div class="row btn-row">
 					{% comment %}
 					<!-- History -->
-					<a href = "{% url 'node_version' groupid node.pk  %}" class="tiny button radius right-btn" >{% trans "History" %}</a> 
+					<a href = "{% url 'node_version' groupid node.pk  %}" class="tiny button radius right-btn" >{% trans "History" %}</a>
 					{% endcomment %}
 						<!-- Cross Publish -->
 						{% if 'CourseEventGroup' not in group_object.member_of_names_list %}
@@ -158,7 +158,7 @@
 							<!-- If resource is already under moderation, don't show cross-publish button -->
 
 								<span  title="{% trans 'Publish this resource in other group/s' %}" class="has-tip tip-bottom"><a id="switch_group" class="tiny button radius right-btn" data-reveal-id="publish_resource"> {% trans "Cross Publish" %}</a></span>
-								<div id="publish_resource" class="reveal-modal" data-reveal style="position:absolute;"> 
+								<div id="publish_resource" class="reveal-modal" data-reveal style="position:absolute;">
 									<h4>{% trans "Select Groups" %}</h4>
 									<div id="switchgrp" class="content">
 									<ul id="group_drawer" class="large-block-grid-2">
@@ -200,7 +200,7 @@
 							<!-- {% switch_group_conditions request.user group_id as switch_conditions %} -->
 							<!-- If resource is already under moderation, don't show cross-publish button -->
 								<span  title="{% trans 'Publish this resource in other group/s' %}" class="has-tip tip-bottom"><a id="switch_group" class="tiny button radius right-btn" data-reveal-id="publish_resource"> {% trans "Cross Publish" %}</a></span>
-								<div id="publish_resource" class="reveal-modal" data-reveal style="position:absolute;"> 
+								<div id="publish_resource" class="reveal-modal" data-reveal style="position:absolute;">
 									<div id="switchgrp" class="content">
 									<h4>{% trans "Select Groups" %}</h4>
 									<div id="group_drawer">
@@ -209,7 +209,7 @@
 									<input type="button" id="save_switch_group" class="round button push-4" value="{% trans 'Save selected group' %}">
 									</div>
 									<a class="close-reveal-modal">&#215;</a>
-								</div>          
+								</div>
 
 						{% endif %}
 
@@ -233,7 +233,7 @@
 							{% endfor %}
 							{% if node.tags|length > 2 %}
 								<small><label class="view-more-tags" style="display:inline-block;">More</label></small>
-							{% endif %}	
+							{% endif %}
 						{% else %}
 						<i><small><label class="lbl_tag">{% trans "No tags defined yet!" %}</label></small></i>
 						{% endif %}
@@ -259,27 +259,27 @@
 					{% endif %}
 					{% endif %}
 				{% endif %}
-			
+
 			<!-- Location	-->
-				
+
 				{% if node.location %}
 		        	<a data-reveal-id="view-map-widget" class="lbl_field tag-rating-div" title={% trans "Click to view the location" %}><i class="fi-marker"></i> {% trans "Location" %}</a>
 	        	{% endif %}
 
 		    <!-- Graphs For Topics or Concept -->
-	      	
+
 		      {% if "Topic" in node.member_of_names_list or "Concept" in node.member_of_names_list or "Page" in node.member_of_names_list %}
 		        <!-- Below code/widgets will only be shown for all resource instances/documents
 		             which are Topic or Concept
 		        -->
 
 		        {% if node.collection_set or node.prior_node %}
-		        	
+
 		        <!-- commented for time being, for TB. -->
 		        <a href="#" class="lbl_field tag-rating-div" data-dropdown="graph-list" data-options="is_hover:true;align:left"><i class="fi-share"></i> {% trans "Graphs" %}</a>
-		        
+
 		        <ul id="graph-list" class="f-dropdown" data-dropdown-content>
-		        	
+
 		        {% comment %}
 		          <li><a href="#view-concept-graph" data-reveal-id="view-concept-graph" id="clickConceptGraph">{% trans "Concept Graph" %}</a></li>
 		        {% endcomment %}
@@ -290,13 +290,13 @@
 
 		          {% if node.prior_node %}
 		          	<li><a href="#view-dependency-graph" data-reveal-id="view-dependency-graph">{% trans "Dependency Graph" %}</a></li>
-		          {% endif %}               
+		          {% endif %}
 		        </ul>
 		        {% endif %}
 		      {% endif %}
-	        
-	
-		        
+
+
+
 			{% endif %}
 
 			{% endif %}
@@ -305,8 +305,8 @@
 		<!-- PANEL 2
 		New {{node}} and Group related actions such as
 		Group Analytics, New Subgroup, New ProgramEvent,
- 		-->		
- 		
+ 		-->
+
  		{% if group_object.edit_policy != "EDITABLE_MODERATED" %}
 		<div class="panel">
 
@@ -319,17 +319,18 @@
 							<!-- Prevent creating New group from context of top mod group -->
 							{% if group_object.edit_policy != "EDITABLE_MODERATED" and is_gstaff %}
 								<a href="{% url create_url group_object.name %}" class="tiny button radius expand mod-btn" title="{% trans 'Create New' %}">
+									<i class="fa fa-users"></i>
 									{% if group_object.agency_type == 'Partner' %}
 										{% trans 'New Partner' %}
 									{% else %}
 										{% trans 'New Group' %}
 									{% endif %}
 								</a>
-							{% endif %}								
-							{% endif %}								
+							{% endif %}
+							{% endif %}
 						{% else %}
 							{% if user_is_joined == "joined" or  user_is_joined == "author" %}
-								{% if node.status != 'MODERATION' %} 
+								{% if node.status != 'MODERATION' %}
 									{% if "File" in node.member_of_names_list and group_object.name != "home" %}
 										<a href="{% url create_url group_object.name %}?next={{request.path}}" class="tiny button radius expand mod-btn" title="Create New {{node.member_of_names_list.0}}">{% trans "New" %} {{node.member_of_names_list.0}}</a>
 									{% else %}
@@ -356,7 +357,7 @@
 			</div>
 			{% endif %}
 
-			
+
 			{% if is_gstaff %}
 			<!-- New SubGroup and PE-->
 			<div class="row btn-row">
@@ -384,21 +385,21 @@
 				<div class="row btn-row">
 					{% comment %}
 					<!-- List Members -->
-		            {% if  is_gstaff %}     
+		            {% if  is_gstaff %}
 		                    <input type="button" id ="btn_list_member" class="tiny button radius left-btn" data-reveal-id="firstModal" value="{% trans 'List Members' %}" title="List Members of this group">
 		            {% endif %}
 		                    <!-- Reveal Modals begin -->
 		                    <div id="firstModal" class="reveal-modal" data-reveal></div>
 					{% endcomment %}
 							<a href="{% url 'program' groupid %}" class="tiny button radius left-btn"><span>{% trans 'List Programs' %}</span></a>
-					
+
 					<!-- Join/ Unsubscribe -->
 						{% if user.is_authenticated %}
 							{% if not is_gstaff %}
 								{% if user_is_joined == "joined" %}
 									<input class="tiny button radius right-btn" title="Unsubscribe from this group" type="submit" id="notify" value="{% trans 'Unsubscribe' %}"
 									{% if group_object.name == "home" %}
-										disabled="disabled" 
+										disabled="disabled"
 									{% endif %}
 									>
 									{% comment %}
@@ -440,12 +441,12 @@
 							<a class="tiny expand button radius mod-btn" href="{% url 'all_under_moderation' group_id %}" title="Check Moderation Status of resources of this group">
 							{% trans 'Moderation Status' %}
 							</a>
-						{% endif %} 
-					{% endif %} 
+						{% endif %}
+					{% endif %}
 	            </div>
 			{% endif %}
 		</div>
-		{% endif %} 
+		{% endif %}
 	</ul>
 </section>
 {% endwith %}
