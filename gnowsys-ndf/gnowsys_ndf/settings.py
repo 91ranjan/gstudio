@@ -12,7 +12,7 @@ TEMPLATE_DEBUG = DEBUG
 DEBUG_PROPAGATE_EXCEPTIONS = DEBUG
 BENCHMARK = "ON"
 
-LANGUAGES = (('en', 'English'), ('hi', 'Hindi'))
+LANGUAGES = (('en', 'English'), ('hi', u'\u0939\u093f\u0902\u0926\u0940'))
 OTHER_COMMON_LANGUAGES = [
     ('mr', 'Marathi'), ('mni','Manipuri'), ('ori','Oriya'),
     ('pi','Pali'), ('raj','Rajasthani'), ('gu','Gujarati'),
@@ -509,6 +509,10 @@ GSTUDIO_WORKING_GAPPS = [
     u"Page", u"File", u"E-Library", u"Forum", u"Task", u"Topics",
     u"Course", u"Observation", u"Event", u"Quiz"
 ]
+
+GSTUDIO_SECOND_LEVEL_HEADER = True
+GSTUDIO_MY_GROUPS_IN_HEADER = True
+GSTUDIO_MY_COURSES_IN_HEADER = False
 
 # This is to be used for listing default GAPPS on gapps-menubar/gapps-iconbar
 # if not set by specific group

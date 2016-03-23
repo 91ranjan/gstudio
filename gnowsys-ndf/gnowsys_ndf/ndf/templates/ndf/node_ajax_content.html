@@ -846,8 +846,8 @@
           <div >
           <section class="">
             {% for subgroup_node in subgroups_cur %}
-              <li class="card-image-wrapper">
-                {% include 'ndf/simple_card.html' with resource=subgroup_node has_prof_pic=True url_name="groupchange" first_arg=subgroup_node.pk %}
+              <li class="card-image-wrapper"> 
+                {% include 'ndf/simple_card.html' with resource=subgroup_node has_prof_pic=True url_name="groupchange" first_arg=subgroup_node.pk no_checkbox=True %}
               </li>
             {% comment %}
 

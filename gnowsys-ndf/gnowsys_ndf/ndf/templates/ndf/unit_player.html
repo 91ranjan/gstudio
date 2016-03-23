@@ -1,7 +1,7 @@
 {% load simple_filters %}
-{% xextends "ndf/gbase.html" with first_body_column=0 %}
+{% xextends "ndf/base.html" with first_body_column=0 %}
 
-{# {% extends "ndf/gbase.html" %} #}
+{# {% extends "ndf/base.html" %} #}
 
 {% load i18n %}
 {% load cache %}
@@ -79,10 +79,24 @@
             </div>
               <div class="activity-title">
                   {{node.name}}
+                  {% if "QuizItemEvent" not in node.member_of_names_list %}
                   {% if is_gstaff or node.created_by == request.user.id %}
+                      {% get_edit_url node.pk as edit_url %}
                       <small>
-                          <a title="Edit this {{node.member_of_names_list.0}}" class="fi-pencil edit_res">{% trans " Edit" %}</a>
+                          <a title="Edit this {{node.member_of_names_list.0}}" class="edit_res_unit">{% trans " Edit Content" %}</a>|
+                          <a title="Edit this {{node.member_of_names_list.0}}" class="edit_settings" href="{% url edit_url group_id node.pk %}">{% trans " Edit Settings" %}</a>
+
+                          {% get_relation_value node.pk 'has_help' as grel_dict %}
+                            {% if grel_dict.cursor and grel_dict.grel_node.count %}
+                                |<a class="lbl_field tag-rating-div" data-dropdown="help-list" data-options="is_hover:true;align:bottom"><i class="fi-info"></i> {% trans "Help" %}</a>
+                                <ul id="help-list" class="f-dropdown" data-dropdown-content>
+                                {% for each_help_page in grel_dict.grel_node %}
+                                  <li><a href="{% url 'page_details' groupid each_help_page.pk %}" target="_blank" title='{% trans "Click to view help page" %}'>{{each_help_page.name}}</a></li>
+                                {% endfor %}
+                                </ul>
+                            {% endif %}
                       </small>
+                  {% endif %}
                   {% endif %}
 
               </div>
@@ -114,16 +128,11 @@
       <div class="row activity-comments-section">
           <div class="columns small-12 " id="view-discussion">
                 <!-- discussion content area -->
-                {% if node.discussion_enable %}
-                  {% get_thread_node node.pk as thread_node %}
-                  {% if thread_node %}
-                      {% get_disc_replies thread_node group_id global_disc_all_replies as all_replies %}
-                      {% get_node thread_node as thread_node_obj %}
-                      {% include 'ndf/gin-line-texteditor.html' with node=thread_node_obj var_name="content_org" %}
-                  {% else %}
-                      {% get_disc_replies node.pk group_id global_disc_all_replies as all_replies %}
-                      {% include 'ndf/gin-line-texteditor.html' with var_name="content_org" %}
-                  {% endif %}
+                {% get_thread_node node.pk as thread_node %}
+                {% if thread_node %}
+                    {% get_disc_replies thread_node group_id global_disc_all_replies as all_replies %}
+                    {% get_node thread_node as thread_node_obj %}
+                    {% include 'ndf/gin-line-texteditor.html' with node=thread_node_obj var_name="content_org" allow_to_comment=True thread_node_exists=True %}
                 {% endif %}
 
                 <!-- END of discussion content area -->
@@ -164,7 +173,7 @@
         $(this).nextAll().add($(this)).addClass('rated');
     });
 
-    $(document).on('click',".edit_res",function(){
+    $(document).on('click',".edit_res_unit",function(){
         $.ajax({
           url: "{% url 'inline_edit_res' group_id node.pk %}",
 
@@ -174,14 +183,14 @@
 
           success: function(data){
             $(".node_details").html(data);
-            $(".edit_res").text("Save")
-                          .addClass("save_res")
-                          .removeClass("edit_res")
+            $(".edit_res_unit").text("Save")
+                          .addClass("save_res_unit")
+                          .removeClass("edit_res_unit")
           },
         });//end of ajax
     });
 
-    $(document).on('click',".save_res",function(){
+    $(document).on('click',".save_res_unit",function(){
         var content_val = CKEDITOR.instances['ckeditor_textarea'].getData();
         // content_val = CKEDITOR.instances.editor1.getData();
         // console.log(content_val)
@@ -200,9 +209,9 @@
 
           success: function(data){
             $(".node_details").html(data);
-            $(".save_res").text("Edit")
-                          .addClass("edit_res")
-                          .removeClass("save_res")
+            $(".save_res_unit").text("Edit")
+                          .addClass("edit_res_unit")
+                          .removeClass("save_res_unit")
           },
         });//end of ajax
 

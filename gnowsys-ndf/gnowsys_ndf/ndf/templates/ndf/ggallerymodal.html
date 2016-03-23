@@ -2,11 +2,33 @@
 {% load i18n %}
 {% load ndf_tags %}
 {% get_grid_fs_object node as grid_fs_obj %}
-
-<div id="reveal-{{node.pk}}" class="reveal-modal" data-reveal >
+<style type="text/css">
+    .visits_info{
+        font-size: 20px;
+    }
+</style>
+<!--<style type="text/css">
+    .gmodal-item-panel .text-gray{
+        display:none;
+    }
+    .gmodal-item-panel iframe{
+        height: 550px!important;
+        width:130%!important;
+    }
+    #view-page{
+        margin-top: -10px!important;
+    }
+    .gmodal-item-panel span{
+        display:none!important;
+    }
+    .gmodal-item-panel .button{
+        display:none!important;
+    }
+</style>-->
+<div id="reveal-{{node.pk}}" class="reveal-modal file-detail-modal" data-reveal >
     <div class="row gmodal-toolbar">
-        <div class="small-2 columns file-name">
-            {{node.name}}
+        <div class="small-8 columns file-name" title="{{node.name}}">
+            {% firstof node.altnames node.name %}
         </div>
         <div class="small-4 columns gmodal-actions">
             {% comment %}
@@ -49,26 +71,16 @@
                     <i class="fi-download"></i>Download
                 </a>
             </div>
-
+            <a href="{% url redirect_tab_url group_id %}" class="file-detail-modal-close"></a>
             <a class="close-reveal-modal" aria-label="Close">&#215;</a>
         </div>
     </div>
     <div class="row gmodal-body">
         <div class="small-8 columns gmodal-item-panel">
             <!-- Detail view section -->
-            <div class="row gmodal-item-holder ">
-                <div class="small-12 columns gmodal-item" style="background-color:white;">
-                    {% if 'image' in node.mime_type %}
-                        <img  src="{% url 'read_file' group_id node grid_fs_obj.filename %}" class="gmodel-item-image"/>
-                    {% else %}
-                        <h3><i>Preview Not Available</i></h3>
-                        <small>This is {{node.mime_type}} type file.<br/>Only images are displayed currently</small>
-                    {% endif %}
-                    {% comment %}
-                        {% include 'ndf/node_ajax_content.html' with no_discussion=True %}
-                    {% endcomment %}
-                </div>
-            </div>
+            {% include 'ndf/node_ajax_content.html' with no_discussion=True %}
+
+        </div>
             {% comment %}
             <div class="row gmodal-footer">
                 <div class="columns small-1 prev-item">< Prev</div>
@@ -96,7 +108,7 @@
                         <a>Close</a>
                     </div>
 
-                    <h5>{{node.name}}</h5>
+                    <h5>{% firstof node.altnames node.name %}</h5>
                     <hr>
                     Date: {{node.created_at}}<br>
                     Uploader: {{node.created_by|get_username}}<br>
@@ -105,10 +117,14 @@
                 </div>
             </div>
                 <div class="row rating-area">
-                    <div class="small-12 columns">
-                    <h4>Rating</h4>
+                    <div class="small-6 columns">
+                        <h4>Rating</h4>
                         {% include "ndf/rating.html" %} 
                     </div>
+                    <div class="small-6 columns right">
+                        {% include "ndf/analytics_views.html" %}
+                    </div>
+
                 </div>
 
                 <div class="row comments-area">

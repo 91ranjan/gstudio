@@ -110,6 +110,9 @@ def get_site_variables():
 	site_var['LANDING_TEMPLATE'] = GSTUDIO_SITE_LANDING_TEMPLATE
 	site_var['HOME_PAGE'] = GSTUDIO_SITE_HOME_PAGE
 	site_var['SITE_NAME'] = GSTUDIO_SITE_NAME
+	site_var['SECOND_LEVEL_HEADER'] = GSTUDIO_SECOND_LEVEL_HEADER
+	site_var['MY_GROUPS_IN_HEADER'] = GSTUDIO_MY_GROUPS_IN_HEADER
+	site_var['MY_COURSES_IN_HEADER'] = GSTUDIO_MY_COURSES_IN_HEADER
 	site_var['ISSUES_PAGE'] = GSTUDIO_SITE_ISSUES_PAGE
 
 	cache.set('site_var', site_var, 60 * 30)
@@ -332,10 +335,13 @@ def get_group_gapps(group_id=None):
 		group_name = group_obj.name
 		for attr in group_obj.attribute_set: 
 			if attr and "apps_list" in attr: 
-				gapps_list = attr["apps_list"] 
+				gapps_list = attr["apps_list"]
+				# print "\n", gapps_list,"\n"
 
 				all_gapp_ids_list = [node_collection.one({'_id':ObjectId(g['_id'])}) for g in gapps_list]
+				# print all_gapp_ids_list,">>>>>>>>>>\n\n works like prior_node"
 				return all_gapp_ids_list
+
 
 	return []
 
@@ -496,22 +502,26 @@ def get_metadata_values():
 
 @get_execution_time
 @register.assignment_tag
-def get_attribute_value(node_id, attr):
+def get_attribute_value(node_id, attr,get_data_type=False):
 	try:
 		attr_val = ""
 		node_attr = None
 		if node_id:
 			node = node_collection.one({'_id': ObjectId(node_id) })
 			gattr = node_collection.one({'_type': 'AttributeType', 'name': unicode(attr) })
-	        # print "node: ",node.name,"\n"
-	        # print "attr: ",attr,"\n"
-
+			# print "node: ",node.name,"\n"
+			# print "attr: ",gattr.name,"\n"
+			if get_data_type:
+				data_type = gattr.data_type
 			if node and gattr:
 				node_attr = triple_collection.find_one({'_type': "GAttribute", "subject": node._id, 'attribute_type.$id': gattr._id, 'status':"PUBLISHED"})	
 
+		# print "\n\n node_attr==",node_attr
 		if node_attr:
 			attr_val = node_attr.object_value
 		# print "attr_val: ",attr_val,"\n"
+		if get_data_type:
+			return {'value': attr_val, 'data_type': data_type}
 		return attr_val
 	except:
 		return attr_val
@@ -520,28 +530,35 @@ def get_attribute_value(node_id, attr):
 @register.assignment_tag
 def get_relation_value(node_id, grel):
 	try:
-		grel_val_node = None
-		grel_id = None
-		node_grel = None
+		result_dict = {}
 		if node_id:
 			node = node_collection.one({'_id': ObjectId(node_id) })
-			grel = node_collection.one({'_type': 'RelationType', 'name': unicode(grel) })
-			if node and grel:
-				node_grel = triple_collection.one({'_type': "GRelation", "subject": node._id, 'relation_type.$id': grel._id,'status':"PUBLISHED"})
-				if node_grel:
-					grel_val = node_grel.right_subject
-					grel_id = node_grel._id
-					grel_val_node = node_collection.one({'_id':ObjectId(grel_val)})
-					# returns right_subject of grelation and GRelation _id 
-					return grel_val_node, grel_id
+			relation_type_node = node_collection.one({'_type': 'RelationType', 'name': unicode(grel) })
+			if node and relation_type_node:
+				if relation_type_node.object_cardinality > 1:
+					node_grel = triple_collection.find({'_type': "GRelation", "subject": node._id, 'relation_type.$id': relation_type_node._id,'status':"PUBLISHED"})
+					if node_grel:
+						grel_val = []
+						grel_id = []
+						for each_node in node_grel:
+							grel_val.append(each_node.right_subject)
+							grel_id.append(each_node._id)
+						grel_val_node_cur = node_collection.find({'_id':{'$in' : grel_val}})
+						# nodes = [grel_node_val for grel_node_val in grel_val_node_cur]
+						# print "\n\n grel_val_node, grel_id == ",grel_val_node, grel_id
+						result_dict.update({"grel_id": grel_id, "grel_node": grel_val_node_cur, "cursor": True})
 				else:
-					return None
-			else:
-				return None
-		else:
-			return None
-
+					node_grel = triple_collection.one({'_type': "GRelation", "subject": node._id, 'relation_type.$id': relation_type_node._id,'status':"PUBLISHED"})
+					if node_grel:
+						grel_val = node_grel.right_subject
+						grel_id = node_grel._id
+						grel_val_node = node_collection.one({'_id':ObjectId(grel_val)})
+						# returns right_subject of grelation and GRelation _id 
+						result_dict.update({"grel_id": grel_id, "grel_node": grel_val_node, "cursor": False})
+		# print "\n\nresult_dict === ",result_dict
+		return result_dict
 	except Exception as e:
+		print e
 		return None
 
 @get_execution_time
@@ -627,8 +644,8 @@ def edit_drawer_widget(field, group_id, node=None, page_no=1, checked=None, **kw
 
 @get_execution_time
 @register.inclusion_tag('tags/dummy.html')
-def list_widget( fields_name, fields_type, fields_value, template1='ndf/option_widget.html',template2='ndf/drawer_widget.html'):
-	
+# def list_widget( fields_name, fields_type, fields_value, template1='ndf/option_widget.html',template2='ndf/drawer_widget.html'):
+def list_widget( fields_name, fields_type, fields_value, template1='ndf/option_widget.html'):
 	drawer1 = {}
 	drawer2 = None
 	# groupid = ""
@@ -641,8 +658,7 @@ def list_widget( fields_name, fields_type, fields_value, template1='ndf/option_w
 	alltypes = ["GSystemType","MetaType","AttributeType","RelationType"]
 
 	fields_selection1 = ["subject_type","language","object_type","applicable_node_type","subject_applicable_nodetype","object_applicable_nodetype","data_type"]
-
-	fields_selection2 = ["meta_type_set","attribute_type_set","relation_type_set","prior_node","member_of","type_of"]
+	# fields_selection2 = ["meta_type_set","attribute_type_set","relation_type_set","prior_node","member_of","type_of"]
 
 	fields = {"subject_type":"GSystemType", "object_type":"GSystemType", "meta_type_set":"MetaType", "attribute_type_set":"AttributeType", "relation_type_set":"RelationType", "member_of":"MetaType", "prior_node":"all_types", "applicable_node_type":"NODE_TYPE_CHOICES", "subject_applicable_nodetype":"NODE_TYPE_CHOICES", "object_applicable_nodetype":"NODE_TYPE_CHOICES", "data_type": "DATA_TYPE_CHOICES", "type_of": "GSystemType","language":"GSystemType"}
 	types = fields[fields_name]
@@ -671,7 +687,78 @@ def list_widget( fields_name, fields_type, fields_value, template1='ndf/option_w
 				drawer1[str(each._id)]=each
 		return {'template': template1, 'widget_for': fields_name, 'drawer1': drawer1, 'selected_value': fields_value}
 
+	# if fields_name in fields_selection2:
+	# 	fields_value_id_list = []
+
+	# 	if fields_value:
+	# 		for each in fields_value:
+	# 			if type(each) == ObjectId:
+	# 				fields_value_id_list.append(each)
+	# 			else:
+	# 				fields_value_id_list.append(each._id)
+
+	# 	if types in alltypes:
+	# 		for each in node_collection.find({"_type": types}):
+	# 			if fields_value_id_list:
+	# 				if each._id not in fields_value_id_list:
+	# 					drawer1[each._id] = each
+	# 			else:
+	# 				drawer1[each._id] = each
+
+	# 	if types in ["all_types"]:
+	# 		for each in alltypes:
+	# 			for eachnode in node_collection.find({"_type": each}):
+	# 				if fields_value_id_list:
+	# 					if eachnode._id not in fields_value_id_list:
+	# 						drawer1[eachnode._id] = eachnode
+	# 				else:
+	# 					drawer1[eachnode._id] = eachnode
+
+	# 	if fields_value_id_list:
+	# 		drawer2 = []
+	# 		for each_id in fields_value_id_list:
+	# 			each_node = node_collection.one({'_id': each_id})
+	# 			if each_node:
+	# 				drawer2.append(each_node)
+
 	
+	# 	return {'template': template2, 'widget_for': fields_name, 'drawer1': drawer1, 'drawer2': drawer2, 'group_id': groupid,'groupid': groupid, 'admin_related_drawer': admin_related_drawer }
+
+
+
+
+
+
+
+
+	
+@get_execution_time
+@register.assignment_tag
+@register.inclusion_tag('ndf/admin_fields.html')
+def get_all_drawer_items(fields_name,fields_value):
+	drawer1 = {}
+	alltypes = ["GSystemType","MetaType","AttributeType","RelationType"]
+	fields_selection2 = ["meta_type_set","attribute_type_set","relation_type_set","member_of","type_of"]
+	fields = {"subject_type":"GSystemType", "object_type":"GSystemType", "meta_type_set":"MetaType", "attribute_type_set":"AttributeType", "relation_type_set":"RelationType", "member_of":"MetaType", "prior_node":"all_types", "applicable_node_type":"NODE_TYPE_CHOICES", "subject_applicable_nodetype":"NODE_TYPE_CHOICES", "object_applicable_nodetype":"NODE_TYPE_CHOICES", "data_type": "DATA_TYPE_CHOICES", "type_of": "GSystemType","language":"GSystemType"}
+	types = fields[fields_name]
+
+	if fields_name in fields_selection2:
+		if types in alltypes:
+			for each in node_collection.find({"_type": types}):
+				drawer1[each] = each
+		return drawer1
+	return []
+
+@get_execution_time
+@register.assignment_tag
+@register.inclusion_tag('ndf/admin_fields.html')
+def get_selected_drawer_items(fields_name,fields_value):
+	drawer2 = None
+	alltypes = ["GSystemType","MetaType","AttributeType","RelationType"]
+	fields_selection2 = ["meta_type_set","attribute_type_set","relation_type_set","prior_node","member_of","type_of"]
+	fields = {"subject_type":"GSystemType", "object_type":"GSystemType", "meta_type_set":"MetaType", "attribute_type_set":"AttributeType", "relation_type_set":"RelationType", "member_of":"MetaType", "prior_node":"all_types", "applicable_node_type":"NODE_TYPE_CHOICES", "subject_applicable_nodetype":"NODE_TYPE_CHOICES", "object_applicable_nodetype":"NODE_TYPE_CHOICES", "data_type": "DATA_TYPE_CHOICES", "type_of": "GSystemType","language":"GSystemType"}
+	types = fields[fields_name]
+
 	if fields_name in fields_selection2:
 		fields_value_id_list = []
 
@@ -682,23 +769,6 @@ def list_widget( fields_name, fields_type, fields_value, template1='ndf/option_w
 				else:
 					fields_value_id_list.append(each._id)
 
-		if types in alltypes:
-			for each in node_collection.find({"_type": types}):
-				if fields_value_id_list:
-					if each._id not in fields_value_id_list:
-						drawer1[each._id] = each
-				else:
-					drawer1[each._id] = each
-
-		if types in ["all_types"]:
-			for each in alltypes:
-				for eachnode in node_collection.find({"_type": each}):
-					if fields_value_id_list:
-						if eachnode._id not in fields_value_id_list:
-							drawer1[eachnode._id] = eachnode
-					else:
-						drawer1[eachnode._id] = eachnode
-
 		if fields_value_id_list:
 			drawer2 = []
 			for each_id in fields_value_id_list:
@@ -706,8 +776,27 @@ def list_widget( fields_name, fields_type, fields_value, template1='ndf/option_w
 				if each_node:
 					drawer2.append(each_node)
 
-	
-		return {'template': template2, 'widget_for': fields_name, 'drawer1': drawer1, 'drawer2': drawer2, 'group_id': groupid,'groupid': groupid, 'admin_related_drawer': admin_related_drawer }
+		return drawer2
+
+	return []
+
+
+@get_execution_time
+@register.assignment_tag
+@register.inclusion_tag('ndf/admin_fields.html')
+def get_all_priornode_items(fields_name,fields_value):
+	drawer1 = {}
+	drawer = {}
+	alltypes = ["GSystemType","MetaType","AttributeType","RelationType"]
+	fields = {"meta_type_set":"MetaType", "relation_type_set":"RelationType", "member_of":"MetaType", "prior_node":"all_types","type_of": "GSystemType"}
+	types = fields[fields_name]
+
+	for each in alltypes:
+		for eachnode in node_collection.find({"_type":each}):
+			drawer[eachnode] = eachnode._id
+	return drawer
+
+	return []
 
 
 @get_execution_time
@@ -1270,12 +1359,12 @@ def get_edit_url(groupid):
 			return 'term_create_edit' 
 		elif type_name == 'Theme' or type_name == 'Topic':
 			return 'theme_topic_create'
-		elif type_name == 'QuizItem':
+		elif type_name == 'QuizItem' or type_name == 'QuizItemEvent':
 			return 'quiz_item_edit'
-                elif type_name == 'Forum':
-                        return 'edit_forum'
-                elif type_name == 'Twist' or type_name == 'Thread':
-                        return 'edit_thread'
+		elif type_name == 'Forum':
+			return 'edit_forum'
+		elif type_name == 'Twist' or type_name == 'Thread':
+			return 'edit_thread'
 
 
 	elif node._type == 'Group' or node._type == 'Author' :
@@ -1850,9 +1939,10 @@ def get_policy(group, user):
 def get_input_fields(fields_type, fields_name, translate=None ):
 	"""Get html tags 
 	"""
-	field_type_list = ["meta_type_set","attribute_type_set","relation_type_set","prior_node","member_of","type_of"]
-	return {"fields_name":fields_name, "fields_type": fields_type[0], "fields_value": fields_type[1], 
-					"field_type_list":field_type_list,"translate":translate }
+	# field_type_list = ["meta_type_set","attribute_type_set","relation_type_set","prior_node","member_of","type_of"]
+	return {"fields_name":fields_name, "fields_type": fields_type[0], "fields_value": fields_type[1],"translate":translate }
+	# return {"fields_name":fields_name, "fields_type": fields_type[0], "fields_value": fields_type[1], 
+					# "field_type_list":field_type_list,"translate":translate }
 	# return {'template': 'ndf/admin_fields.html', 
 	# 				"fields_name":fields_name, "fields_type": fields_type[0], "fields_value": fields_type[1], 
 	# 				"field_type_list":field_type_list,"translate":translate}
@@ -3116,7 +3206,7 @@ def get_all_subsections_of_course(group_id, node_id):
 	if node_obj.collection_set:
 		for each_node in node_obj.collection_set:
 			each_node_obj = node_collection.one({'_id': ObjectId(each_node)})
-			if "CourseSectionEvent" in each_node_obj.member_of_names_list:
+			if each_node_obj and "CourseSectionEvent" in each_node_obj.member_of_names_list:
 				if each_node_obj.collection_set:
 					for each_node in each_node_obj.collection_set:
 						each_css = node_collection.one({'_id': ObjectId(each_node)})
@@ -3209,15 +3299,15 @@ def get_event_status(node):
 		start_enroll_val = get_attribute_value(node._id,"start_enroll")
 		end_enroll_val = get_attribute_value(node._id,"end_enroll")
 		from datetime import datetime
-        curr_date_time = datetime.now()
-        if start_time_val and end_time_val and start_enroll_val and end_enroll_val:
-	        if curr_date_time.date() >= start_time_val.date() and curr_date_time.date() <= end_time_val.date() \
-	        or curr_date_time.date() >= start_enroll_val.date() and curr_date_time.date() <= end_enroll_val.date():
-	            status_msg = "in-progress"
-	        elif curr_date_time.date() < start_time_val.date() or curr_date_time.date() < start_enroll_val.date():
-	            status_msg = "upcoming"
-	        elif curr_date_time.date() > end_time_val.date() or curr_date_time.date() > end_enroll_val.date():
-	            status_msg = "completed"
+		curr_date_time = datetime.now()
+		if start_time_val and end_time_val and start_enroll_val and end_enroll_val:
+			if curr_date_time.date() >= start_time_val.date() and curr_date_time.date() <= end_time_val.date() \
+			or curr_date_time.date() >= start_enroll_val.date() and curr_date_time.date() <= end_enroll_val.date():
+				status_msg = "in-progress"
+			elif curr_date_time.date() < start_time_val.date() or curr_date_time.date() < start_enroll_val.date():
+				status_msg = "upcoming"
+			elif curr_date_time.date() > end_time_val.date() or curr_date_time.date() > end_enroll_val.date():
+				status_msg = "completed"
 	return status_msg
 
 
@@ -3280,7 +3370,6 @@ def get_user_course_groups(user_id):
 
 	for each_course in all_user_groups:
 		each_course.course_status_field = get_event_status(each_course)
-
 		all_courses_obj_grouped[each_course.course_status_field].append(each_course)
 		# all_courses_obj_grouped['all'].append(each_course)
 
@@ -3363,18 +3452,27 @@ def get_user_quiz_resp(node_obj, user_obj):
 
 	'''
 	result = {'count': 0, 'recent_ans': None}
+	thread_obj = None
 	if node_obj and user_obj:
-		thread_obj = get_relation_value(node_obj._id,'has_thread')
-		qip = node_collection.find_one({'_id': {'$in':thread_obj[0].post_node}, 'created_by': user_obj.id})
-		if qip:
-			qip_sub = get_attribute_value(qip._id,'quizitempost_user_submitted_ans')
-			if qip_sub:
-				result['count'] = len(qip_sub)
-				recent_ans = qip_sub[-1]
-				if node_obj.quiz_type == "Short-Response":
-					result['recent_ans'] = recent_ans
-				else:
-					result['recent_ans'] = recent_ans.values()[0]
+		try:
+			for each_rel in node_obj.relation_set:
+				if each_rel and "has_thread" in each_rel:
+					thread_id = each_rel['has_thread'][0]
+					thread_obj = node_collection.one({'_id': ObjectId(thread_id)})
+		except:
+			pass
+		if thread_obj:
+
+			qip = node_collection.one({'_id':{'$in': thread_obj.post_node}, 'created_by': user_obj.id})
+			if qip:
+				qip_sub = get_attribute_value(qip._id,'quizitempost_user_submitted_ans')
+				if qip_sub:
+					result['count'] = len(qip_sub)
+					recent_ans = qip_sub[-1]
+					if node_obj.quiz_type == "Short-Response":
+						result['recent_ans'] = recent_ans
+					else:
+						result['recent_ans'] = recent_ans.values()[0]
 		return result
 
 @get_execution_time
@@ -3448,7 +3546,7 @@ def get_course_filters(group_id, filter_context):
 							'created_by': {'$in': gstaff_users} 
 							},{'tags': 1, '_id': False})
 
-			print "\n\n result_cur.count()--",result_cur.count()
+			# print "\n\n result_cur.count()--",result_cur.count()
 			all_tags_from_cursor = map(lambda x: x['tags'], result_cur)
 			# all_tags_from_cursor is a list having nested list
 			all_tags_list = list(itertools.chain(*all_tags_from_cursor))
@@ -3456,3 +3554,17 @@ def get_course_filters(group_id, filter_context):
 				all_tags_list = json.dumps(all_tags_list)
 			filters_dict[each_course_filter_key].update({'value': all_tags_list})
 	return filters_dict
+
+
+@get_execution_time
+@register.assignment_tag
+def get_info_pages(group_id):
+	list_of_nodes = []
+	page_gst = node_collection.one({'_type': "GSystemType", 'name': "Page"})
+	info_page_gst = node_collection.one({'_type': "GSystemType", 'name': "Info page"})
+	info_page_nodes = node_collection.find({'member_of': page_gst._id, 'type_of': info_page_gst._id})
+	# print "\n\n info_page_nodes===",info_page_nodes.count()
+	# if info_page_nodes.count():
+	# 	for eachnode in info_page_nodes:
+	# 		list_of_nodes.append({'name': eachnode.name,'id': eachnode._id})
+	return info_page_nodes

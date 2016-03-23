@@ -39,9 +39,9 @@ from gnowsys_ndf.ndf.models import node_collection, triple_collection
 from gnowsys_ndf.ndf.models import *
 from gnowsys_ndf.ndf.org2any import org2html
 from gnowsys_ndf.ndf.views.file import *
-from gnowsys_ndf.ndf.views.methods import check_existing_group, get_drawers
+from gnowsys_ndf.ndf.views.methods import check_existing_group, get_drawers, get_course_completed_ids
 from gnowsys_ndf.ndf.views.methods import get_node_common_fields, get_node_metadata, create_grelation,create_gattribute
-from gnowsys_ndf.ndf.views.methods import create_task,parse_template_data,get_execution_time,get_group_name_id
+from gnowsys_ndf.ndf.views.methods import create_task,parse_template_data,get_execution_time,get_group_name_id, dig_nodes_field
 from gnowsys_ndf.ndf.views.methods import get_widget_built_up_data, parse_template_data, get_prior_node_hierarchy
 from gnowsys_ndf.ndf.views.methods import create_grelation, create_gattribute, create_task, node_thread_access, get_course_units_tree
 from gnowsys_ndf.ndf.templatetags.ndf_tags import get_profile_pic, edit_drawer_widget, get_contents, get_sg_member_of, get_attribute_value, check_is_gstaff
@@ -775,7 +775,7 @@ def get_tree_hierarchy(request, group_id, node_id):
 ##### bellow part is for manipulating nodes collections#####
 
 @get_execution_time
-def get_inner_collection(collection_list, node, gstaff_access):
+def get_inner_collection(collection_list, node, gstaff_access, completed_ids, incompleted_ids):
   inner_list = []
   error_list = []
   inner_list_append_temp=inner_list.append #a temp. variable which stores the lookup for append method
@@ -786,9 +786,18 @@ def get_inner_collection(collection_list, node, gstaff_access):
         for cl in collection_list:
           if cl['id'] == node.pk:
             node_type = node_collection.one({'_id': ObjectId(col_obj.member_of[0])}).name
-            inner_sub_dict = {'name': col_obj.name, 'id': col_obj.pk,'node_type': node_type}
+            if col_obj._id in completed_ids:
+              inner_sub_dict = {'name': col_obj.name, 'id': col_obj.pk,'node_type': node_type, "status": "COMPLETED"}
+              # print "\n completed_ids -- ",completed_ids
+              # print "\n\n col_obj ---- ", col_obj.name, " - - ",col_obj.member_of_names_list, " -- ", col_obj._id
+            elif col_obj._id in incompleted_ids:
+              inner_sub_dict = {'name': col_obj.name, 'id': col_obj.pk,'node_type': node_type, "status": "WARNING"}
+              # print "\n completed_ids -- ",completed_ids
+              # print "\n\n col_obj ---- ", col_obj.name, " - - ",col_obj.member_of_names_list, " -- ", col_obj._id
+            else:
+              inner_sub_dict = {'name': col_obj.name, 'id': col_obj.pk,'node_type': node_type}
             inner_sub_list = [inner_sub_dict]
-            inner_sub_list = get_inner_collection(inner_sub_list, col_obj, gstaff_access)
+            inner_sub_list = get_inner_collection(inner_sub_list, col_obj, gstaff_access, completed_ids, incompleted_ids)
             # if "CourseSubSectionEvent" == node_type:
             #   start_date_val = get_attribute_value(col_obj._id, "start_time")
             #   if start_date_val:
@@ -817,23 +826,41 @@ def get_inner_collection(collection_list, node, gstaff_access):
 
 
 @get_execution_time
-def get_collection(request, group_id, node_id):
+def get_collection(request, group_id, node_id, stats_flag=False):
   node = node_collection.one({'_id':ObjectId(node_id)})
   # print "\nnode: ",node.name,"\n"
   collection_list = []
   gstaff_access = False
+  completed_ids_list = []
+  incompleted_ids_list = []
   gstaff_access = check_is_gstaff(group_id,request.user)
+
+  completed_node_ids = request.GET.getlist("completed_nodes[]","")
+  incompleted_node_ids = request.GET.getlist("incompleted_nodes[]","")
+  leaf_ids = request.GET.getlist("leaf_nodes[]","")
   # collection_list_append_temp=collection_list.append
   # print "\n\n gstaff_access---",gstaff_access
+
+  list_of_leaf_node_ids = []
+  if stats_flag:
+    if request.user.id:
+        completed_ids_list = map(ObjectId, completed_node_ids)
+        incompleted_ids_list = map(ObjectId, incompleted_node_ids)
+        list_of_leaf_node_ids = map(ObjectId, leaf_ids)
+        # print "\n\n completed_ids_list --- ", len(completed_ids_list)
+        # print "\n\n incompleted_ids_list --- ", len(incompleted_ids_list)
+
   for each in node.collection_set:
     obj = node_collection.one({'_id': ObjectId(each) })
     if obj:
       node_type = node_collection.one({'_id': ObjectId(obj.member_of[0])}).name
       collection_list.append({'name':obj.name,'id':obj.pk,'node_type':node_type})
 
-      collection_list = get_inner_collection(collection_list, obj, gstaff_access)
- # def a(p,q,r):
-#		collection_list.append({'name': p, 'id': q,'node_type': r})
+      collection_list = get_inner_collection(collection_list, obj, gstaff_access, completed_ids_list, incompleted_ids_list)
+
+
+  # def a(p,q,r):
+  #		collection_list.append({'name': p, 'id': q,'node_type': r})
   #this empty list will have the Process objects as its elements
   # processes=[]
   #Function used by Processes implemented below
@@ -6167,7 +6194,7 @@ def get_visits_count(request, group_id):
 		return HttpResponse(json.dumps(response_dict))
 
 @get_execution_time
-def get_ckeditor(request,group_id):
+def get_ckeditor(request,group_id): 
     ckeditor_toolbar_val = request.GET.get('ckeditor_toolbar')
     return render_to_response('ndf/html_editor.html',            
             {
@@ -6194,3 +6221,5 @@ def get_gin_line_template(request,group_id,node_id):
                 
             },
             context_instance=RequestContext(request))
+
+

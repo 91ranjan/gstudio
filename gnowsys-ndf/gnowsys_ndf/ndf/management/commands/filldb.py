@@ -137,6 +137,7 @@ class Command(BaseCommand):
           gs_node.group_type = u'PUBLIC'
           gs_node.edit_policy  = u'NON_EDITABLE'
           gs_node.status = u'PUBLISHED'
+          gs_node.origin.append({'source': 'filldb'})
           gs_node.save()
           print "Group: 'home' created."
         
@@ -161,6 +162,7 @@ class Command(BaseCommand):
           gs_node.group_type= u'PUBLIC'
           gs_node.edit_policy =u'EDITABLE_NON_MODERATED'
           gs_node.status = u'PUBLISHED'
+          gs_node.origin.append({'source': 'filldb'})
           gs_node.save()
           print "Group: 'warehouse' created."
 
@@ -186,8 +188,31 @@ class Command(BaseCommand):
           # should it be moderated with 2 level of moderation ?
           gs_node.edit_policy =u'EDITABLE_NON_MODERATED'
           gs_node.status = u'PUBLISHED'
+          gs_node.origin.append({'source': 'filldb'})
           gs_node.save()
           print "Group: 'desk' created."
+
+        node_doc = node_collection.one({'$and':[{'_type': u'Group'}, {'name': u'help'}]})
+        if node_doc is None:
+          gs_node = node_collection.collection.Group()
+          gs_node.name = u'help'
+          gs_node.created_by = user_id
+          gs_node.modified_by = user_id
+
+          if user_id not in gs_node.contributors:
+            gs_node.contributors.append(user_id)
+
+          gs_node.member_of.append(node_collection.one({"_type": "GSystemType", 'name': "Group"})._id)
+          gs_node.disclosure_policy =u'DISCLOSED_TO_MEM'
+          gs_node.subscription_policy=u'OPEN'
+          gs_node.visibility_policy=u'ANNOUNCED'
+          gs_node.encryption_policy=u'NOT_ENCRYPTED'
+          gs_node.group_type= u'PUBLIC'
+          gs_node.edit_policy =u'EDITABLE_NON_MODERATED'
+          gs_node.status = u'PUBLISHED'
+          gs_node.origin.append({'source': 'filldb'})
+          gs_node.save()
+          print "Group: 'help' created."
 
         
         # Creating factory GSystemType's 
@@ -628,18 +653,27 @@ def create_rts(factory_relation_types,user_id):
           member_of_type_id = member_of_type._id
 
       for s in value['subject_type']:
-        node_s = node_collection.one({'$and':[{'_type': u'GSystemType'},{'name': s}]})
-        if node_s is None:
-          node_s = node_collection.one({'$and':[{'_type': u'MetaType'},{'name': s}]})
-          
-        subject_type_id_list.append(node_s._id)
+        if s == "*":
+          node_s = node_collection.find({'_type': u'GSystemType'},{'_id':1})
+          subject_type_id_list = [each_node._id for each_node in node_s]
+
+        else:
+          node_s = node_collection.one({'$and':[{'_type': u'GSystemType'},{'name': s}]})
+          if node_s is None:
+            node_s = node_collection.one({'$and':[{'_type': u'MetaType'},{'name': s}]})
+          subject_type_id_list.append(node_s._id)
        
       for rs in value['object_type']:
-        node_rs = node_collection.one({'$and':[{'_type': u'GSystemType'},{'name': rs}]})
-        if node_rs is None:
-          node_rs =node_collection.one({'$and':[{'_type': u'MetaType'},{'name': rs}]})
-  
-        object_type_id_list.append(node_rs._id)
+        if rs == "*":
+          node_s = node_collection.find({'_type': u'GSystemType'},{'_id':1})
+          object_type_id_list = [each_node._id for each_node in node_s]
+
+        else:
+          node_rs = node_collection.one({'$and':[{'_type': u'GSystemType'},{'name': rs}]})
+          if node_rs is None:
+            node_rs =node_collection.one({'$and':[{'_type': u'MetaType'},{'name': rs}]})
+    
+          object_type_id_list.append(node_rs._id)
       
       if "object_cardinality" in value:
         object_cardinality = value["object_cardinality"]
