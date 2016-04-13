@@ -2,7 +2,7 @@
   <script src="/static/ndf/bower_components/pace/pace.js"></script>
   <link href="/static/ndf/bower_components/pace/themes/blue/pace-theme-loading-bar.css" rel="stylesheet" />
 <style type="text/css">
-  
+
   .rating-stars {
     background-image:url("/static/ndf/images/stars.png");
     height: 15px;
@@ -137,7 +137,7 @@
                     <div class="columns small-6 medium-6 rating-stars"></div>
                     <div class="columns small-6 medium-6 rating_lbl left"></div>
                   </div>
-                  
+
                 </span>
               </div>
               {% endcomment %}
@@ -192,7 +192,7 @@
                 <span class="course-metric-count">
                   <div class="row total_rating_rcvd_on_files">
                     <div class="columns small-6 medium-6 rating-stars"></div>
-                    <div class="columns small-6 medium-6 rating_lbl left"></div>
+                    <div class="columns small-6 medium-6 rating_lbl left" style="font-size: 12px"></div>
                   </div>
                 </span>
               </div>
@@ -249,7 +249,7 @@
                 <span class="course-metric-count">
                   <div class="row total_rating_rcvd_on_notes">
                     <div class="columns small-6 medium-6 rating-stars"></div>
-                    <div class="columns small-6 medium-6 rating_lbl left"></div>
+                    <div class="columns small-6 medium-6 rating_lbl left" style="font-size: 12px"></div>
                   </div>
                 </span>
               </div>
@@ -479,13 +479,13 @@
 
   function loaddata() {
     // $('#course-notification').unbind();
-    
+
         $.ajax({
             url: "{% url 'page_scroll' groupid 'counter' %}".replace("counter", counter),
             type: "GET",
             data:{'links': false},
             datatype: "json",
-            global: false, 
+            global: false,
             beforeSend: function(){
                 $("#course-notification").append("<label class='loading_lbl'>Loading...</label>");
             },
@@ -497,11 +497,11 @@
                 }
 
                 else{
-                    if(morecount ==0) { 
+                    if(morecount ==0) {
                         $("#course-notification").append("<h6>  No more data to show </h6>");
                         morecount = morecount+1;
                         counter = 2;
-                    } 
+                    }
                 }
             }
         });

@@ -104,7 +104,7 @@
             <div class="row">
               <div class="columns small-12 medium-6">
                 <span class="course-metric-heading">Ongoing courses</span>
-                <span class="course-metric-count in-progress"></span>
+                <span class=" course-metric-count in-progress"></span>
               </div>
               <div class="columns small-12 medium-6">
                 <span class="course-metric-heading">Incomplete courses</span>
@@ -162,27 +162,59 @@
                 <span class="course-metric-heading">{{groups_cur.count}} Groups</span>
                 <span class="course-metric-count user_files"></span>
               </div>
+              <div class="course-gallery-uploads-footer">
+                  39
+              </div>
             </div>
           </div>
-          {% comment %}
-          <div class="course-warning course-section">
-              <h5>WAITING FOR YOUR FEEDBACK</h5>
-              <div><i class="fa fa-sign-in"></i><a>3 New notes added</a></div>
-              <div><i class="fa fa-file-image-o"></i><a>36 New files uploaded in the gallery</a></div>
-              <div></div>
-          </div>
-          {% endcomment %}
-
         </div>
 
       </div>
 </div>
+<div style="display: none" class="group-footer-tooltip">
+    <div class="group-footer-tooltip-content course-warning course-section">
+      <h5>WAITING FOR YOUR FEEDBACK</h5>
+      <div><i class="fa fa-sign-in"></i><a>3 New notes added</a></div>
+      <div><i class="fa fa-file-image-o"></i><a>36 New files uploaded in the gallery</a></div>
+      <div></div>
+    </div>
+</div>
+<div style="display: none" class="in-progress-tooltip">
+    <div class="in-progress-tooltip-content">
+        <ul>
+            <li>
+                <a href="#">Invitation to CLIx</a>
+                <span class="tooltip-meta">Total Points</span>
+                <span class="tooltip-text">432</span>
+            </li>
+            <li>
+                <a href="#">Long Second course title</a>
+                <span>Total Points</span>
+                <span>432</span>
+            </li>
+        </ul>
+    </div>
+</div>
+<script type="text/javascript" src="https://cdn.jsdelivr.net/jquery.webui-popover/1.2.7/jquery.webui-popover.min.js"></script>
+<link rel="stylesheet" href="https://cdn.jsdelivr.net/jquery.webui-popover/1.2.1/jquery.webui-popover.min.css">
 <script type="text/javascript">
     $(document).ready(function() {
     	{% for eachc,eachcv in my_course_objs.items %}
     		$("."+ "{{eachc}}").text("{{eachcv|length}}")
     	{% endfor %}
     })
-	
+    //$(".in-progress").attr('title', $(".in-progress-tooltip").html());
+    $(".in-progress").webuiPopover({
+        content:$(".in-progress-tooltip").html(),
+        onShow: function(){
+            $(".in-progress-tooltip-content").closest('.webui-popover').addClass('in-progress-tooltip-container');
+        }
+    });
+    $('.course-gallery-uploads-footer').webuiPopover({
+        content: $(".group-footer-tooltip").html(),
+        onShow: function(){
+            $(".group-footer-tooltip-content").closest('.webui-popover').addClass('group-footer-tooltip-container');
+        }
+    })
 </script>
 {% endblock %}
